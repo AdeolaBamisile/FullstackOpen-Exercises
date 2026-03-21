@@ -12,7 +12,7 @@ const App = () => {
   const exercises3 = 14;
   return (
     <div>
-      <Header Header={course} />
+      <Header course={course} />
       <Content
         part1={part1}
         exercises1={exercises1}
