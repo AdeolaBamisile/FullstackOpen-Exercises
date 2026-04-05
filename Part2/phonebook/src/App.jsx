@@ -30,6 +30,9 @@ const App = () => {
       setNewName("");
       setNewNumber("");
       return;
+    } else if (newName == "" || newNumber == "") {
+      alert("Please fill all the required fields");
+      return;
     }
     setPersons(persons.concat(noteObject));
     setNewName("");
