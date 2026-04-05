@@ -7,6 +7,12 @@ const App = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const noteObject = { name: newName };
+    const existingName = persons.some((person) => person.name == newName);
+    if (existingName) {
+      alert(`${newName} is already added to the phonebook`);
+      setNewName("");
+      return;
+    }
     setPersons(persons.concat(noteObject));
     setNewName("");
   };
