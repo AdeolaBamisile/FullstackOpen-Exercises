@@ -20,7 +20,6 @@ const App = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const noteObject = {
-      id: persons.length + 1,
       name: newName,
       number: newNumber,
     };
@@ -40,9 +39,11 @@ const App = () => {
       alert("Please fill all the required fields");
       return;
     }
-    setPersons(persons.concat(noteObject));
-    setNewName("");
-    setNewNumber("");
+    axios.post("http://localhost:3001/persons", noteObject).then((response) => {
+      setPersons(persons.concat(response.data));
+      setNewName("");
+      setNewNumber("");
+    });
   };
 
   const handleNameChange = (event) => {
