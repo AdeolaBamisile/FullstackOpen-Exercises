@@ -3,6 +3,7 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import ServerNotes from "./services/ServerNotes";
+import axios from "axios";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -58,6 +59,15 @@ const App = () => {
     setNewSearch(event.target.value);
   };
 
+  const handleDelete = (id) => () => {
+    const person = persons.find((person) => person.id === id);
+    if (window.confirm(`Delete ${person.name}`)) {
+      ServerNotes.remove(id).then((initialNote) => {
+        setPersons(persons.filter((person) => person.id !== id));
+      });
+    }
+  };
+
   const peopelToShow =
     newSearch == ""
       ? persons
@@ -80,7 +90,14 @@ const App = () => {
         newNumber={newNumber}
       />
       <h2>Numbers</h2>
-      <Persons peopelToShow={peopelToShow} />
+      {peopelToShow.map((person) => (
+        <Persons
+          key={person.id}
+          name={person.name}
+          number={person.number}
+          handleDelete={handleDelete(person.id)}
+        />
+      ))}
     </>
   );
 };
