@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import ServerNotes from "./services/ServerNotes";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,8 +11,8 @@ const App = () => {
   const [newSearch, setNewSearch] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      const notes = response.data;
+    ServerNotes.getAll().then((initialNote) => {
+      const notes = initialNote;
       setPersons(notes);
     });
   }, []);
@@ -39,8 +39,8 @@ const App = () => {
       alert("Please fill all the required fields");
       return;
     }
-    axios.post("http://localhost:3001/persons", noteObject).then((response) => {
-      setPersons(persons.concat(response.data));
+    ServerNotes.create(noteObject).then((initialNote) => {
+      setPersons(persons.concat(initialNote));
       setNewName("");
       setNewNumber("");
     });
