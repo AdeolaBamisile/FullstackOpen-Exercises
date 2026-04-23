@@ -3,7 +3,6 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import ServerNotes from "./services/ServerNotes";
-import axios from "axios";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -27,7 +26,20 @@ const App = () => {
     const existingName = persons.some((person) => person.name == newName);
     const existingNumber = persons.some((person) => person.number == newNumber);
     if (existingName) {
-      alert(`${newName} is already added to the phonebook`);
+      const personToUpdate = persons.find((person) => person.name === newName);
+      const changedNumber = { ...personToUpdate, number: newNumber };
+      const id = personToUpdate.id;
+      if (
+        window.confirm(
+          `${personToUpdate.name} is already in the phonebook, replace the old number with a new one?`,
+        )
+      ) {
+        ServerNotes.edit(id, changedNumber).then((initialNote) => {
+          setPersons(
+            persons.map((person) => (person.id === id ? initialNote : person)),
+          );
+        });
+      }
       setNewName("");
       setNewNumber("");
       return;
