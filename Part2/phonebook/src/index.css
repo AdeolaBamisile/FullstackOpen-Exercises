@@ -1,0 +1,9 @@
+.added{
+    color: green;
+    padding: 10px;
+    border: 5px solid green;
+    border-radius: 10px;
+    background-color: lightgrey;
+    font-size: 25px;
+    margin-bottom: 15px;
+}
