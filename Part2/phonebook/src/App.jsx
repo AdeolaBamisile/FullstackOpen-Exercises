@@ -31,15 +31,29 @@ const App = () => {
       const personToUpdate = persons.find((person) => person.name === newName);
       const changedNumber = { ...personToUpdate, number: newNumber };
       const id = personToUpdate.id;
-      ServerNotes.edit(id, changedNumber).then((initialNote) => {
-        setPersons(
-          persons.map((person) => (person.id === id ? initialNote : person)),
-        );
-        setNotify(`Changed ${personToUpdate.name}'s number`);
-        setTimeout(() => {
-          setNotify(null);
-        }, 5000);
-      });
+      ServerNotes.edit(id, changedNumber)
+        .then((initialNote) => {
+          setPersons(
+            persons.map((person) => (person.id === id ? initialNote : person)),
+          );
+          setNotify({
+            text: `Changed ${personToUpdate.name}'s number`,
+            type: "added",
+          });
+          setTimeout(() => {
+            setNotify(null);
+          }, 5000);
+        })
+        .catch(() => {
+          setNotify({
+            text: `Information of ${personToUpdate.name} has already been removed from the server`,
+            type: "error",
+          });
+          setTimeout(() => {
+            setNotify(null);
+          }, 5000);
+          setPersons(persons.filter((person) => person.id !== id));
+        });
       setNewName("");
       setNewNumber("");
       return;
@@ -56,7 +70,7 @@ const App = () => {
       setPersons(persons.concat(initialNote));
       setNewName("");
       setNewNumber("");
-      setNotify(`Added ${newName}`);
+      setNotify({ text: `Added ${newName}`, type: "added" });
       setTimeout(() => {
         setNotify(null);
       }, 5000);
@@ -77,11 +91,24 @@ const App = () => {
 
   const handleDelete = (id) => () => {
     const person = persons.find((person) => person.id === id);
-    if (window.confirm(`Delete ${person.name}`)) {
-      ServerNotes.remove(id).then((initialNote) => {
+    ServerNotes.remove(id)
+      .then((initialNote) => {
+        setPersons(persons.filter((person) => person.id !== id));
+        setNotify({ text: `Deleted ${person.name}`, type: "added" });
+        setTimeout(() => {
+          setNotify(null);
+        }, 5000);
+      })
+      .catch(() => {
+        setNotify({
+          text: `Information of ${person.name} has already been removed from the server`,
+          type: "error",
+        });
+        setTimeout(() => {
+          setNotify(null);
+        }, 5000);
         setPersons(persons.filter((person) => person.id !== id));
       });
-    }
   };
 
   const peopelToShow =
