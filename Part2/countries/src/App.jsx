@@ -9,7 +9,6 @@ const App = () => {
     axios
       .get("https://studies.cs.helsinki.fi/restcountries/api/all")
       .then((response) => {
-        console.log(response.data);
         setCountries(response.data);
       });
   }, []);
@@ -22,6 +21,10 @@ const App = () => {
     country.name.common.toLowerCase().includes(value.toLowerCase()),
   );
 
+  const handleShow = (country) => () => {
+    setValue(country.name.common);
+  };
+
   return (
     <>
       <div>
@@ -33,7 +36,10 @@ const App = () => {
       ) : null}
       {filteredCountries.length <= 10 && filteredCountries.length > 1
         ? filteredCountries.map((country) => (
-            <div key={country.cca3}>{country.name.common}</div>
+            <div key={country.cca3}>
+              {country.name.common}
+              <button onClick={handleShow(country)}>show</button>
+            </div>
           ))
         : null}
       {filteredCountries.length === 1 ? (
@@ -44,7 +50,7 @@ const App = () => {
           <h2>Languages</h2>
           <ul>
             {Object.values(filteredCountries[0].languages).map((language) => {
-              return <li id={language}>{language}</li>;
+              return <li key={language}>{language}</li>;
             })}
           </ul>
           <img
