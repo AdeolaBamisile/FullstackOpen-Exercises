@@ -44,15 +44,19 @@ const App = () => {
             setNotify(null);
           }, 5000);
         })
-        .catch(() => {
-          setNotify({
-            text: `Information of ${personToUpdate.name} has already been removed from the server`,
-            type: "error",
-          });
+        .catch((error) => {
+          if (error.response && error.response.status === 400) {
+            setNotify({ text: error.response.data.error, type: "error" });
+          } else {
+            setNotify({
+              text: `Information of ${personToUpdate.name} has already been removed from the server`,
+              type: "error",
+            });
+            setPersons(persons.filter((person) => person.id !== id));
+          }
           setTimeout(() => {
             setNotify(null);
           }, 5000);
-          setPersons(persons.filter((person) => person.id !== id));
         });
       setNewName("");
       setNewNumber("");
@@ -66,15 +70,24 @@ const App = () => {
       alert("Please fill all the required fields");
       return;
     }
-    ServerNotes.create(noteObject).then((initialNote) => {
-      setPersons(persons.concat(initialNote));
-      setNewName("");
-      setNewNumber("");
-      setNotify({ text: `Added ${newName}`, type: "added" });
-      setTimeout(() => {
-        setNotify(null);
-      }, 5000);
-    });
+    ServerNotes.create(noteObject)
+      .then((initialNote) => {
+        setPersons(persons.concat(initialNote));
+        setNewName("");
+        setNewNumber("");
+        setNotify({ text: `Added ${newName}`, type: "added" });
+        setTimeout(() => {
+          setNotify(null);
+        }, 5000);
+      })
+      .catch((error) => {
+        setNotify({ text: error.response.data.error, type: "error" });
+        setTimeout(() => {
+          setNotify(null);
+        }, 5000);
+        setNewName("");
+        setNewNumber("");
+      });
   };
 
   const handleNameChange = (event) => {
