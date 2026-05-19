@@ -62,12 +62,21 @@ const App = () => {
       setNewNumber("");
       return;
     } else if (existingNumber) {
-      alert(`${newNumber} is already added to the phonebook`);
+      setNotify({
+        text: `${newNumber} is already added to the phonebook`,
+        type: "error",
+      });
+      setTimeout(() => {
+        setNotify("");
+      }, 5000);
       setNewName("");
       setNewNumber("");
       return;
     } else if (newName == "" || newNumber == "") {
-      alert("Please fill all the required fields");
+      setNotify({ text: "Please fill all the required fields", type: "error" });
+      setTimeout(() => {
+        setNotify("");
+      }, 5000);
       return;
     }
     ServerNotes.create(noteObject)
