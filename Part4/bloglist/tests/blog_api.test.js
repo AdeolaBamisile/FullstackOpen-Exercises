@@ -4,33 +4,13 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const app = require('../app')
 const supertest = require('supertest')
+const helper = require('./test_helper')
 
 const api = supertest(app)
 
-const initialBlogList = [
-    {
-        title: 'Title 1',
-        author: 'Erenn Johnson',
-        url: 'url 1',
-        likes: 5,
-    },
-    {
-        title: 'title 2',
-        author: 'Eran Danniels',
-        url: 'url 2',
-        likes: 15,
-    },
-    {
-        title: 'title 3',
-        author: 'Erenn Johnson',
-        url: 'url 3',
-        likes: 10,
-    }
-]
-
 beforeEach(async () => {
     await Blog.deleteMany()
-    await Blog.insertMany(initialBlogList)
+    await Blog.insertMany(helper.initialBlogList)
 })
 
 test('blogs are returned as json', async () => {
@@ -41,12 +21,80 @@ test('blogs are returned as json', async () => {
 })
 
 test('all blogs are returned', async () => {
-    const response = await api.get('/api/blogs')
-    assert.strictEqual(response.body.length, initialBlogList.length)
+    const response = await helper.blogsInDb()
+    assert.strictEqual(response.length, helper.initialBlogList.length)
 })
 
-test('all blogs are returned')
+test('unique identifiers are named id', async () => {
+    const response = await helper.blogsInDb()
+    const firstBlog = response[0]
+    assert.notStrictEqual(firstBlog.id, undefined)
+    assert.strictEqual(firstBlog._id, undefined)
+})
+
+test('a new blog can be added', async () => {
+    const newBlog = {
+        title: 'Title 4',
+        author: 'New Author',
+        url: 'url 4',
+        likes: 20,
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const allBlogs = await helper.blogsInDb()
+    const titles = allBlogs.map(b => b.title)
+    assert.strictEqual(allBlogs.length, helper.initialBlogList.length + 1)
+    assert(titles.includes('Title 4'))
+})
+
+test('there is a like property', async () => {
+    const newBlog = {
+        title: 'Title 4',
+        author: 'New Author',
+        url: 'url 4',
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    assert.strictEqual(response.body.likes, 0)
+
+})
+
+test('there is no title', async () => {
+    const newBlog = {
+        author: 'New Author',
+        url: 'url 4',
+        likes: 20,
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
+
+test('there is on url', async () => {
+    const newBlog = {
+        title: 'Title 4',
+        author: 'New Author',
+        likes: 20,
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
 
 after(async () => {
-    mongoose.connection.close()
+    await mongoose.connection.close()
 })
