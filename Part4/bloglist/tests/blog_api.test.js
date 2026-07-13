@@ -95,6 +95,40 @@ test('there is on url', async () => {
         .expect(400)
 })
 
+test('a blog can be deleted', async () => {
+    const allBlogsStart = await helper.blogsInDb()
+    const blogToDelete = allBlogsStart[0]
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const allBlogsEnd = await helper.blogsInDb()
+    const titles = allBlogsEnd.map(b => b.title)
+    assert.strictEqual(allBlogsEnd.length, helper.initialBlogList.length - 1)
+    assert(!titles.includes(blogToDelete.title))
+})
+
+test('a blog can be updated', async () => {
+    const allBlogs = await helper.blogsInDb()
+    const blogToUpdate = allBlogs[0]
+
+    const updatedBlogData = {
+        title: blogToUpdate.title,
+        author: blogToUpdate.author,
+        url: blogToUpdate.url,
+        likes: blogToUpdate.likes + 10
+    }
+
+    const response = await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedBlogData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    assert.strictEqual(response.body.likes, blogToUpdate.likes + 10)
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
