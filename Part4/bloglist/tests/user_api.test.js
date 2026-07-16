@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
+const Blog = require('../models/blog')
 
 const api = supertest(app)
 
@@ -12,8 +13,8 @@ beforeEach(async () => {
     await User.deleteMany()
     const passwordHash = await bcrypt.hash('password', 10)
     const newUser = new User({
-        username: 'New User',
-        name: 'A new user',
+        username: 'NewUser1',
+        name: 'Anewuser1',
         passwordHash
     })
     await newUser.save()
@@ -44,7 +45,7 @@ test('creation fails with status code 400 is username already exist', async () =
     const allUsersStart = await User.find()
     
     const newUser = ({
-        username: 'New User',
+        username: 'NewUser1',
         name: 'ANewUser',
         password: 'secretive'
     })
@@ -63,7 +64,7 @@ test('creation fails with status code 400 if password is too short', async () =>
     const allUsersStart = await User.find()
 
     const newUser = {
-        username: 'A New User',
+        username: 'ANewUser',
         name: 'ANewUser',
         password: 'se'
     }
@@ -95,6 +96,47 @@ test('creation fails with status code 400 if username is too short', async () =>
 
     const allUsersEnd = await User.find()
     assert.strictEqual(allUsersEnd.length, allUsersStart.length)
+})
+
+test('creation fails with thee status code 401 if token is not provided', async () => {
+    const allBlogsStart = await Blog.find()
+
+    const newBlog = {
+        title: 'newTitle',
+        author: 'newAuthor',
+        url: 'newUrl',
+        likes: '0'
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+    const allBlogsEnd = await Blog.find()
+    assert.strictEqual(allBlogsEnd.length, allBlogsStart.length)
+})
+
+test('creation fails with status code 401 if token is invalid', async () => {
+    const allBlogsStart = await Blog.find()
+
+    const newBlog = {
+        title: 'newTitle',
+        author: 'newAuthor',
+        url: 'newUrl',
+        likes: '0'
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .set('Authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')
+        .expect(401)
+        .expect('Content-Type', /application\/json/)
+
+    const allBlogsEnd = await Blog.find()
+    assert.strictEqual(allBlogsEnd.length, allBlogsStart.length)
 })
 
 after(async () => {
