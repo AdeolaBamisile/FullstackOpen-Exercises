@@ -2,8 +2,21 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-    "title": "FullStackOpen",
-    "author": "Ola",
-    "url": "https://example.com/",
-    "likes": 10
+    "title": "Programming with Mosh",
+    "author": "Mosh",
+    "url": "https://codingwithmosh.com/",
+    "likes": 100
+}
+###
+
+DELETE http://localhost:3003/api/blogs/6a58a82c10b6b9766bedbc71
+###
+
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+    "username": "Ola",
+    "name": "Adeola",
+    "password": "secret"
 }
