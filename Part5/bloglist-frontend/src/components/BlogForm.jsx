@@ -1,14 +1,14 @@
-import { useEffect, useImperativeHandle, useState } from "react";
-import Blog from "./Blog";
+import { useEffect, useImperativeHandle, useState } from 'react'
+import Blog from './Blog'
 
 const BlogForm = ({ createBlog, ref }) => {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
-  const handleTitleChange = (event) => setTitle(event.target.value);
-  const handleAuthorChange = (event) => setAuthor(event.target.value);
-  const handleUrlChange = (event) => setUrl(event.target.value);
+  const handleTitleChange = (event) => setTitle(event.target.value)
+  const handleAuthorChange = (event) => setAuthor(event.target.value)
+  const handleUrlChange = (event) => setUrl(event.target.value)
 
   const addBlog = (event) => {
     event.preventDefault()
@@ -17,12 +17,12 @@ const BlogForm = ({ createBlog, ref }) => {
       title: title,
       author: author,
       url: url,
-    });
+    })
 
-    setTitle("");
-    setAuthor("");
-    setUrl("");
-  };
+    setTitle('')
+    setAuthor('')
+    setUrl('')
+  }
 
   return (
     <>
@@ -49,7 +49,7 @@ const BlogForm = ({ createBlog, ref }) => {
         <button>create</button>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default BlogForm;
+export default BlogForm
