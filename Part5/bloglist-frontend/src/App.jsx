@@ -1,17 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
+import Togglable from "./components/Togglable";
+import BlogForm from "./components/BlogForm";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
   const [notify, setNotify] = useState(null);
 
   useEffect(() => {
@@ -38,16 +37,12 @@ const App = () => {
       setPassword("");
       setUsername("");
     } catch {
-      setNotify({text: 'wrong username or password', type: 'error'})
+      setNotify({ text: "wrong username or password", type: "error" });
       setTimeout(() => {
-        setNotify(null)
+        setNotify(null);
       }, 5000);
     }
   };
-
-  const handleTitleChange = (event) => setTitle(event.target.value);
-  const handleAuthorChange = (event) => setAuthor(event.target.value);
-  const handleUrlChange = (event) => setUrl(event.target.value);
 
   const loginForm = () => {
     return (
@@ -87,23 +82,20 @@ const App = () => {
     window.localStorage.removeItem("loggedInUser");
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const newBlog = {
-      title: title,
-      author: author,
-      url: url,
-    };
-    const initialBlog = await blogService.create(newBlog);
-    setBlogs(blogs.concat(initialBlog));
-    setTitle("");
-    setAuthor("");
-    setUrl("");
-    setNotify({text: `a new blog ${title} by ${author} added`, type:'success'})
+  const handleSubmit = async (blogObject) => {
+    const returnedBlog = await blogService.create(blogObject);
+    setBlogs(blogs.concat(returnedBlog));
+    setNotify({
+      text: `a new blog ${blogObject.title} by ${blogObject.author} added`,
+      type: "success",
+    });
     setTimeout(() => {
-      setNotify(null)
+      setNotify(null);
     }, 5000);
+    blogFormRef.current.handleVisibility()
   };
+
+  const blogFormRef = useRef();
 
   const allBlogs = () => {
     return (
@@ -112,31 +104,12 @@ const App = () => {
         <Notification message={notify} />
         <p>{user.name} logged in</p>
         <button onClick={handleLogout}>log out</button>
-        <h2>create new</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>
-              title
-              <input type="text" value={title} onChange={handleTitleChange} />
-            </label>
-          </div>
-          <div>
-            <label>
-              author
-              <input type="text" value={author} onChange={handleAuthorChange} />
-            </label>
-          </div>
-          <div>
-            <label>
-              url
-              <input type="text" value={url} onChange={handleUrlChange} />
-            </label>
-          </div>
-          <button>create</button>
-        </form>
+        <Togglable ref={blogFormRef} buttonLabel="create blog">
+          <BlogForm createBlog={handleSubmit} blogs={blogs} />
+        </Togglable>
         {blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
-        ))}
+        <Blog key={blog.id} blog={blog} />
+      ))}
       </div>
     );
   };
