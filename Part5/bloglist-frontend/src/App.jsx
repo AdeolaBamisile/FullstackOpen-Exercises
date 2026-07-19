@@ -26,6 +26,20 @@ const App = () => {
     }
   }, []);
 
+  const handleLike = async (id) => {
+    const blog = blogs.find(blog => blog.id === id)
+    const likedBlog = { ...blog, likes: blog.likes + 1 }
+    const returnedBlog = await blogService.edit(blog.id, likedBlog)
+    const returnedBlogWithUser = { ...likedBlog, user: blog.user }
+    setBlogs(blogs.map(blog => blog.id === id ? returnedBlogWithUser : blog))
+  }
+
+  const handleDelete = async (id) => {
+    const blog = blogs.find(blog => blog.id === id)
+    await blogService.remove(blog.id)
+    setBlogs(blogs.filter(blog => blog.id !== id))
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -107,8 +121,8 @@ const App = () => {
         <Togglable ref={blogFormRef} buttonLabel="create blog">
           <BlogForm createBlog={handleSubmit} blogs={blogs} />
         </Togglable>
-        {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        {[...blogs].sort((a, b) => b.likes - a.likes).map((blog) => (
+        <Blog key={blog.id} blog={blog} handleDelete={handleDelete} handleLike={handleLike} />
       ))}
       </div>
     );
