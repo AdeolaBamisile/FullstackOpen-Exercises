@@ -31,19 +31,19 @@ const BlogForm = ({ createBlog, ref }) => {
         <div>
           <label>
             title
-            <input type="text" value={title} onChange={handleTitleChange} />
+            <input placeholder='Title' type="text" value={title} onChange={handleTitleChange} />
           </label>
         </div>
         <div>
           <label>
             author
-            <input type="text" value={author} onChange={handleAuthorChange} />
+            <input placeholder='Author' type="text" value={author} onChange={handleAuthorChange} />
           </label>
         </div>
         <div>
           <label>
             url
-            <input type="text" value={url} onChange={handleUrlChange} />
+            <input placeholder='url' type="text" value={url} onChange={handleUrlChange} />
           </label>
         </div>
         <button>create</button>

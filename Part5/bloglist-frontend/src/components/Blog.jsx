@@ -22,9 +22,9 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
 
   if (!blogInfo) {
     return (
-      <div style={blogStyle}>
+      <div className='titleAndAuthor' style={blogStyle}>
         {blog.title} {blog.author}
-        <button onClick={toggleView}>view</button>
+        <button className='viewButton' onClick={toggleView}>view</button>
       </div>
     )
   }
@@ -34,10 +34,10 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
         {blog.title} {blog.author}
         <button onClick={toggleView}>hide</button>
       </div>
-      <div>{blog.url}</div>
-      <div>
+      <div className='url'>{blog.url}</div>
+      <div className='likes'>
         likes {blog.likes}
-        <button onClick={() => handleLike(blog.id)}>like</button>
+        <button className='likeButton' onClick={() => handleLike(blog.id)}>like</button>
       </div>
       <div>{blog.user.name}</div>
       <button onClick={() => handleDelete(blog.id)} style={remove}>remove</button>
