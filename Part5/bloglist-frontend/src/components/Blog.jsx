@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, handleLike, handleDelete }) => {
+const Blog = ({ blog, handleLike, handleDelete, user }) => {
   const [blogInfo, setBlogInfo] = useState(false)
 
   const blogStyle = {
@@ -11,8 +11,9 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
     marginBottom: 5,
   }
 
-  const remove = {
-    backgroundColor: 'blue'
+  const remove = { 
+    display: blog.user.username === user.username ? "" : "none" ,
+    backgroundColor: "blue"
   }
 
   const toggleView = () => {
@@ -30,7 +31,7 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
   }
   return (
     <div style={blogStyle}>
-      <div>
+      <div className='titleAndAuthor'>
         {blog.title} {blog.author}
         <button onClick={toggleView}>hide</button>
       </div>

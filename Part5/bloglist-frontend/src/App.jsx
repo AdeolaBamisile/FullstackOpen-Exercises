@@ -98,7 +98,8 @@ const App = () => {
 
   const handleSubmit = async (blogObject) => {
     const returnedBlog = await blogService.create(blogObject)
-    setBlogs(blogs.concat(returnedBlog))
+    const blogToAdd = { ...returnedBlog, user }
+    setBlogs(blogs.concat(blogToAdd))
     setNotify({
       text: `a new blog ${blogObject.title} by ${blogObject.author} added`,
       type: 'success',
@@ -122,7 +123,7 @@ const App = () => {
           <BlogForm createBlog={handleSubmit} blogs={blogs} />
         </Togglable>
         {[...blogs].sort((a, b) => b.likes - a.likes).map((blog) => (
-          <Blog key={blog.id} blog={blog} handleDelete={handleDelete} handleLike={handleLike} />
+          <Blog key={blog.id} blog={blog} handleDelete={handleDelete} handleLike={handleLike} user={user} />
         ))}
       </div>
     )
