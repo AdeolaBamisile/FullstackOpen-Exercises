@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { Button, Card, Typography, CardContent } from '@mui/material'
 
 const Blog = ({ blog, handleLike, deleteBlog, user }) => {
 
@@ -17,7 +18,6 @@ const Blog = ({ blog, handleLike, deleteBlog, user }) => {
 
   const remove = { 
     display: blog.user?.username === user?.username ? "" : "none" ,
-    backgroundColor: "blue"
   }
 
   const navigate = useNavigate()
@@ -28,16 +28,23 @@ const Blog = ({ blog, handleLike, deleteBlog, user }) => {
   }
 
   return (
-    <div>
-      <h2 className='AuthorAndTitle'>{blog.author}: {blog.title}</h2>
-      <div className='url'>{blog.url}</div>
-      <div className='likes'>
-        likes: {blog.likes}
-        {user && <button className='likeButton' onClick={() => handleLike(blog.id)}>like</button>}
-      </div>
-      <div>Added by {blog.user.name}</div>
-      <button className='removeButton' style={remove} onClick={handleDelete}>remove</button>
-    </div>
+    <Card sx={{boxShadow: 3}}>
+      <CardContent>
+        <Typography variant='h4' component='h2' className='AuthorAndTitle' gutterBottom>{blog.title}</Typography>
+        <Typography variant='subtitle1' gutterBottom>by {blog.author}</Typography>
+        <Typography variant='body1' gutterBottom><Link className='url'>{blog.url}</Link></Typography>
+        <Typography variant='body2' gutterBottom>Added by {blog.user.name}</Typography>
+          <div className='likes'>
+            {blog.likes} {blog.likes === 1 ? 'like' : 'likes' }
+          </div>
+          {user && (
+            <div>
+              <Button className='likeButton' style={{marginRight: 10}} variant='outlined' onClick={() => handleLike(blog.id)} color='primary'>like</Button>
+              <Button className='removeButton' style={remove} variant='outlined' onClick={handleDelete} color='error'>remove</Button>
+            </div>
+          )}
+      </CardContent>
+    </Card>
   )
 }
 

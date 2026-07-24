@@ -14,6 +14,14 @@ import {
   useMatch,
   useNavigate,
 } from "react-router-dom";
+import {
+  TextField,
+  Button,
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+} from "@mui/material";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -49,10 +57,17 @@ const App = () => {
     const blog = blogs.find((blog) => blog.id === id);
     await blogService.remove(blog.id);
     setBlogs(blogs.filter((blog) => blog.id !== id));
+    setNotify({
+      text: `Blog ${blog.title} by ${blog.author} deleted`,
+      type: "warning",
+    });
+    setTimeout(() => {
+      setNotify(null);
+    }, 5000);
   };
 
-  const navigate = useNavigate()
-  
+  const navigate = useNavigate();
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -63,13 +78,18 @@ const App = () => {
       setUser(user);
       setPassword("");
       setUsername("");
-      navigate('/')
+      navigate("/");
     } catch {
       setNotify({ text: "wrong username or password", type: "error" });
       setTimeout(() => {
         setNotify(null);
       }, 5000);
     }
+  };
+
+  const border = {
+    border: "none",
+    borderBottom: "1px solid grey",
   };
 
   const loginForm = () => {
@@ -79,26 +99,26 @@ const App = () => {
         <Notification message={notify} />
         <form onSubmit={handleLogin}>
           <div>
-            <label>
-              username
-              <input
-                type="text"
-                value={username}
-                onChange={handleUsernameChange}
-              />
-            </label>
+            <TextField
+              label="username"
+              type="text"
+              value={username}
+              onChange={handleUsernameChange}
+              style={{ marginTop: 5, marginBottom: 5 }}
+            />
           </div>
           <div>
-            <label>
-              password
-              <input
-                type="password"
-                value={password}
-                onChange={handlePasswordChange}
-              />
-            </label>
+            <TextField
+              label="password"
+              type="password"
+              value={password}
+              onChange={handlePasswordChange}
+              style={{ marginTop: 5, marginBottom: 5 }}
+            />
           </div>
-          <button>login</button>
+          <Button type="submit" variant="contained">
+            login
+          </Button>
         </form>
       </div>
     );
@@ -108,7 +128,7 @@ const App = () => {
     setUser(null);
     blogService.setToken(null);
     window.localStorage.removeItem("loggedInUser");
-    navigate('/')
+    navigate("/");
   };
 
   const handleSubmit = async (blogObject) => {
@@ -127,23 +147,42 @@ const App = () => {
   const handleUsernameChange = (event) => setUsername(event.target.value);
   const handlePasswordChange = (event) => setPassword(event.target.value);
 
-  const padding = {
-    padding: 5,
+  const style = {
+    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
   };
 
-  const match = useMatch('/blogs/:id')
-  const blog = match ? blogs.find(b => b.id === match.params.id) : null
+  const match = useMatch("/blogs/:id");
+  const blog = match ? blogs.find((b) => b.id === match.params.id) : null;
 
   return (
     <div>
-      <Link style={padding} to="/">
-        blogs
-      </Link>
-      {user && <Link style={padding} to='/create'>new blog</Link>}
-      {!user && <Link style={padding} to="/login">
-        login
-      </Link>}
-      {user && <button onClick={handleLogout}>logout</button> }
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Blogs
+          </Typography>
+          <Box>
+            <Button color="inherit" component={Link} sx={style} to="/">
+              blogs
+            </Button>
+            {user && (
+              <Button color="inherit" component={Link} sx={style} to="/create">
+                new blog
+              </Button>
+            )}
+            {!user && (
+              <Button color="inherit" component={Link} sx={style} to="/login">
+                login
+              </Button>
+            )}
+            {user && (
+              <Button color="inherit" sx={style} onClick={handleLogout}>
+                logout
+              </Button>
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
       <Routes>
         <Route
           path="/"
@@ -154,16 +193,26 @@ const App = () => {
               handleSubmit={handleSubmit}
               deleteBlog={deleteBlog}
               user={user}
+              message={notify}
             />
           }
         />
         <Route path="/login" element={loginForm()} />
-        <Route path="/blogs/:id" element={
-          <Blog blog={blog} user={user} deleteBlog={deleteBlog} handleLike={handleLike} />
-        } />
-        <Route path="/create" element={
-          <BlogForm createBlog={handleSubmit} />
-        } />
+        <Route
+          path="/blogs/:id"
+          element={
+            <Blog
+              blog={blog}
+              user={user}
+              deleteBlog={deleteBlog}
+              handleLike={handleLike}
+            />
+          }
+        />
+        <Route
+          path="/create"
+          element={<BlogForm createBlog={handleSubmit} />}
+        />
       </Routes>
     </div>
 

@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom"
 import Blog from "./Blog"
+import Notification from "./Notification"
 
-const BlogList = ({ blogs, handleLike, handleSubmit, handleDelete, user }) => {
+const BlogList = ({ blogs, handleLike, handleSubmit, handleDelete, user, message }) => {
     return (
       <div>
+        <Notification message={message} />
         <h2>blogs</h2>
-        {[...blogs].sort((a, b) => b.likes - a.likes).map((blog) => (
-          <ul><Link to={`/blogs/${blog.id}`} ><li key={blog.id}>{blog.title} {blog.author}{}</li></Link></ul>
-        ))}
+        <ul>{[...blogs].sort((a, b) => b.likes - a.likes).map((blog) => (
+          <li key={blog.id}><Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link></li>
+        ))}</ul>
       </div>
     )
 }
