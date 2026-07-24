@@ -1,7 +1,8 @@
-import { useEffect, useImperativeHandle, useState } from 'react'
+import { useState } from 'react'
 import Blog from './Blog'
+import { useNavigate } from 'react-router-dom'
 
-const BlogForm = ({ createBlog, ref }) => {
+const BlogForm = ({ createBlog }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -9,6 +10,8 @@ const BlogForm = ({ createBlog, ref }) => {
   const handleTitleChange = (event) => setTitle(event.target.value)
   const handleAuthorChange = (event) => setAuthor(event.target.value)
   const handleUrlChange = (event) => setUrl(event.target.value)
+
+  const navigate = useNavigate()
 
   const addBlog = (event) => {
     event.preventDefault()
@@ -22,6 +25,7 @@ const BlogForm = ({ createBlog, ref }) => {
     setTitle('')
     setAuthor('')
     setUrl('')
+    navigate('/')
   }
 
   return (

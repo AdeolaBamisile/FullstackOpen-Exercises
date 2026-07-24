@@ -2,75 +2,90 @@ import { screen, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Blog from "./Blog";
 import { expect, test, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 
-test("renders blog's title and author intially", async () => {
+test("Blog info and likes are displayed to unauthorised users", async () => {
     const blog = {
         title: 'newTitle',
         author: 'newAuthor',
         url: 'www.newUrl.com',
         likes: 10,
         user: {
+            username: "New User",
             name: 'newUser'
         }
     }
 
-    const { container } = render(<Blog blog={blog}/>)
+    const { container } = render(
+        <MemoryRouter>
+            <Blog blog={blog} user={null}/>
+        </MemoryRouter>
+    )
 
-    const titleAndAuthor = container.querySelector('.titleAndAuthor')
+    const AuthorAndTitle = container.querySelector('.AuthorAndTitle')
     const url = container.querySelector('.url')
     const likes = container.querySelector('.likes')
+    const removeButton = container.querySelector('.removeButton')
+    const likeButton = container.querySelector('.likeButton')
 
-    expect(titleAndAuthor).toBeVisible()
-    expect(url).toBeNull()
-    expect(likes).toBeNull()
-})
-
-test("blog' URL and number of likes are shown on button click", async () => {
-    const blog = {
-        title: 'newTitle',
-        author: 'newAuthor',
-        url: 'www.newUrl.com',
-        likes: 10,
-        user: {
-            name: 'newUser'
-        }
-    }
-
-    const { container } = render(<Blog blog={blog}/>)
-
-    const user = userEvent.setup()
-    const button = screen.getByText('view')
-    await user.click(button)
-
-    const url = container.querySelector('.url')
-    const likes = container.querySelector('.likes')
-
+    expect(AuthorAndTitle).toBeVisible()
     expect(url).toBeVisible()
     expect(likes).toBeVisible()
+    expect(removeButton).not.toBeVisible()
+    expect(likeButton).toBeNull()
 })
 
-test('if like button is clicked twice, the component recieved as props is called twice', async () => {
+test("Authorised users who are not the blog's creator are shown like button only", async () => {
     const blog = {
         title: 'newTitle',
         author: 'newAuthor',
         url: 'www.newUrl.com',
         likes: 10,
         user: {
-            name: 'newUser'
+            name: 'newUser',
+            username: "New user"
         }
     }
-    
-    const user = userEvent.setup()
-    const mockEvent = vi.fn()
 
-    const { container } = render(<Blog blog={blog} handleLike={mockEvent} />)
+    const loggedInUser = {
+        name: 'differentUser',
+        username: "Different User"
+    }
 
-    const viewButton = container.querySelector('.viewButton')
-    await user.click(viewButton)
+    const { container } = render(
+        <MemoryRouter>
+            <Blog blog={blog} user={loggedInUser}/>
+        </MemoryRouter>
+    )
 
+    const removeButton = container.querySelector('.removeButton')
     const likeButton = container.querySelector('.likeButton')
-    await user.click(likeButton)
-    await user.click(likeButton)
 
-    expect(mockEvent.mock.calls).toHaveLength(2)
+    expect(removeButton).not.toBeVisible()
+    expect(likeButton).toBeVisible()
+})
+
+test("blog's creator can see remove button", async () => {
+    const blog = {
+        title: 'newTitle',
+        author: 'newAuthor',
+        url: 'www.newUrl.com',
+        likes: 10,
+        user: {
+            name: 'newUser',
+            username: "New user"
+        }
+    }
+
+    const { container } = render(
+        <MemoryRouter>
+            <Blog blog={blog} user={blog.user}/>
+        </MemoryRouter>
+    )
+
+    const removeButton = container.querySelector('.removeButton')
+    const likeButton = container.querySelector('.likeButton')
+
+    expect(removeButton).toBeVisible()
+    expect(likeButton).toBeVisible()
 })

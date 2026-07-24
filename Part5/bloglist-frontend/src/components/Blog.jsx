@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-const Blog = ({ blog, handleLike, handleDelete, user }) => {
-  const [blogInfo, setBlogInfo] = useState(false)
+const Blog = ({ blog, handleLike, deleteBlog, user }) => {
 
   const blogStyle = {
     paddingTop: 10,
@@ -10,38 +10,33 @@ const Blog = ({ blog, handleLike, handleDelete, user }) => {
     borderWidth: 1,
     marginBottom: 5,
   }
+  
+  if (!blog) {
+    return <div>Loading blog...</div>
+  }
 
   const remove = { 
-    display: blog.user.username === user.username ? "" : "none" ,
+    display: blog.user?.username === user?.username ? "" : "none" ,
     backgroundColor: "blue"
   }
 
-  const toggleView = () => {
-    setBlogInfo(!blogInfo)
+  const navigate = useNavigate()
+
+  const handleDelete = () => {
+    deleteBlog(blog.id)
+    navigate('/')
   }
 
-
-  if (!blogInfo) {
-    return (
-      <div className='titleAndAuthor' style={blogStyle}>
-        {blog.title} {blog.author}
-        <button className='viewButton' onClick={toggleView}>view</button>
-      </div>
-    )
-  }
   return (
-    <div style={blogStyle}>
-      <div className='titleAndAuthor'>
-        {blog.title} {blog.author}
-        <button onClick={toggleView}>hide</button>
-      </div>
+    <div>
+      <h2 className='AuthorAndTitle'>{blog.author}: {blog.title}</h2>
       <div className='url'>{blog.url}</div>
       <div className='likes'>
-        likes {blog.likes}
-        <button className='likeButton' onClick={() => handleLike(blog.id)}>like</button>
+        likes: {blog.likes}
+        {user && <button className='likeButton' onClick={() => handleLike(blog.id)}>like</button>}
       </div>
-      <div>{blog.user.name}</div>
-      <button onClick={() => handleDelete(blog.id)} style={remove}>remove</button>
+      <div>Added by {blog.user.name}</div>
+      <button className='removeButton' style={remove} onClick={handleDelete}>remove</button>
     </div>
   )
 }
