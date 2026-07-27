@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import ServerAnecdotes from './services/ServerAnecdotes'
 
 const anecdotesAtStart = [
   'If it hurts, do it more often',
@@ -9,30 +10,47 @@ const anecdotesAtStart = [
   'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
 ]
 
-const getId = () => (100000 * Math.random()).toFixed(0)
-
 const asObject = anecdote => ({
   content: anecdote,
-  id: getId(),
   votes: 0
 })
 
-const useAnecdoteStore = create((set) => ({
-  anecdotes: anecdotesAtStart.map(asObject),
+const useAnecdoteStore = create((set, get) => ({
+  anecdotes: [],
   filter: '',
+  notification: null,
   actions: {
-    vote: id => set(state => ({
-      anecdotes: state.anecdotes.map(anecdote => (
-        anecdote.id === id ? { ...anecdote, votes: anecdote.votes + 1 } : anecdote
-      ))
-    })),
-    addAnecdote: anecdote => set(state => ({
-      anecdotes: state.anecdotes.concat(asObject(anecdote))
-    })),
-    setFilter: value => set(state => ({ filter: value }))
+    vote: async (id) => {
+      const anecdote = get().anecdotes.find(a => a.id === id)
+      const editedAnecdote = { ...anecdote, votes: anecdote.votes + 1 }
+      const returnedAnecdote = await ServerAnecdotes.edit(id, editedAnecdote)
+      set(state => ({ 
+        anecdotes: state.anecdotes.map(anecdote => 
+          anecdote.id === id ? returnedAnecdote : anecdote
+        ) 
+      }))
+    },
+    addAnecdote: async (anecdote) => {
+      const newAnecdote = await ServerAnecdotes.create(asObject(anecdote))
+      set(state => ({ anecdotes: state.anecdotes.concat(newAnecdote) }))
+    },
+    setFilter: value => set(state => ({ filter: value })),
+    initialize: async () => {
+      const anecdotes = await ServerAnecdotes.getAll()
+      set(state => ({ anecdotes }))
+    },
+    setNotification: value => set(state => ({ notification: value })),
+    remove: async (id) => {
+      const anecdote = get().anecdotes.find(a => a.id === id)
+      ServerAnecdotes.remove(id)
+      set(state => ({
+        anecdotes: state.anecdotes.filter(anecdote => anecdote.id !== id)
+      }))
+    }
   },
 }))
 
 export const useAnecdotes = () => useAnecdoteStore((state) => state.anecdotes)
 export const useAnecdoteActions = () => useAnecdoteStore((state) => state.actions)
 export const useFilter = () => useAnecdoteStore(state => state.filter)
+export const useNotification = () => useAnecdoteStore(state => state.notification)

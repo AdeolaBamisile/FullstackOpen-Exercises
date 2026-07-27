@@ -1,13 +1,17 @@
 import { useAnecdoteActions } from "../store";
 
 const AnecdoteForm = () => {
-  const { addAnecdote } = useAnecdoteActions();
+  const { addAnecdote, setNotification } = useAnecdoteActions();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const content = event.target.anecdote.value;
     addAnecdote(content);
+    setNotification(`New anecdote created '${content}'`)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000);
 
     event.target.reset();
   };
