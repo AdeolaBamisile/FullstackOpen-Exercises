@@ -1,18 +1,20 @@
+import useNotify from "../hooks/useNotify"
+
 const Notification = () => {
-  const style = {
+  const { notify } = useNotify()
+
+    const style = {
     border: 'solid',
     padding: 10,
     borderWidth: 1,
     marginBottom: 5
   }
-  
-  if (true) return null
 
-  return (
-    <div style={style}>
-      
-    </div>
-  )
+  if (!notify) {
+    return null
+  }
+
+  return <div style={style}>{notify}</div>
+
 }
-
 export default Notification
