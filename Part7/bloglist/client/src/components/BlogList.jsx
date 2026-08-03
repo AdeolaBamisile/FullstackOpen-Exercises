@@ -1,17 +1,61 @@
-import { Link } from "react-router-dom"
-import Blog from "./Blog"
-import Notification from "./Notification"
+import { Link } from "react-router-dom";
+import Notification from "./Notification";
+import { useBlogs } from "../store";
+import {
+  Table,
+  TableContainer,
+  Paper,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 
-const BlogList = ({ blogs, handleLike, handleSubmit, handleDelete, user, message }) => {
-    return (
-      <div>
-        <Notification message={message} />
-        <h2>blogs</h2>
-        <ul>{[...blogs].sort((a, b) => b.likes - a.likes).map((blog) => (
-          <li key={blog.id}><Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link></li>
-        ))}</ul>
-      </div>
-    )
-}
+const BlogList = ({ fetchError }) => {
+  const blogs = useBlogs();
 
-export default BlogList
+  if (fetchError) {
+    throw new Error("Error fetching blogs");
+  }
+
+  if (blogs === null) {
+    return <div>Loading blogs...</div>;
+  }
+
+  if (blogs.length === 0) {
+    return <h1>No Blogs</h1>;
+  }
+
+  return (
+    <div>
+      <Notification />
+      <h2>blogs</h2>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Title</TableCell>
+              <TableCell>Author</TableCell>
+              <TableCell>likes</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {[...blogs]
+              .sort((a, b) => b.likes - a.likes)
+              .map((blog) => (
+                <TableRow key={blog.id}>
+                  <TableCell>
+                    <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                  </TableCell>
+                  <TableCell>{blog.author}</TableCell>
+                  <TableCell>{blog.likes}</TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
+  );
+};
+
+export default BlogList;
